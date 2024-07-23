@@ -3,8 +3,9 @@ from fastapi.responses import FileResponse
 import os
 import subprocess
 from pathlib import Path
-
+import uuid
 app = FastAPI()
+
 
 @app.post("/compile/")
 async def compile_tex(file: UploadFile = File(...)):
@@ -13,8 +14,10 @@ async def compile_tex(file: UploadFile = File(...)):
     upload_dir.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    tex_path = upload_dir / file.filename
-    pdf_path = output_dir / (tex_path.stem + ".pdf")
+    unique_id = str(uuid.uuid4())
+    tex_filename = f"{unique_id}_{file.filename}"
+    tex_path = upload_dir / tex_filename
+    pdf_path = output_dir / (tex_filename.replace(".tex", ".pdf"))
 
     with tex_path.open("wb") as f:
         f.write(file.file.read())
